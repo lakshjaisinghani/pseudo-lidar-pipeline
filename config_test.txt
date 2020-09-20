@@ -1,0 +1,3 @@
+--encoder densenet161_bts 
+--data_path /home/mcav/DATA/kitti_dataset 
+--image_path /2011_09_26/2011_09_26_drive_0022_sync/
