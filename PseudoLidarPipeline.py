@@ -37,9 +37,8 @@ class PseudoLidarPipeline:
         """
         depth_img = self.br.imgmsg_to_cv2(data)
 
-        # cloud = self.PL.project_PL(depth_img)
-        cloud = (np.fromfile("/home/mcav/DATA/kitti_dataset/2011_09_26/2011_09_26_drive_0022_sync/velodyne_points/data/{:010d}.bin".format(self.count), dtype=np.float32)).reshape(-1, 4)
-        self.count += 1
+        cloud = self.PL.project_PL(depth_img)
+        
         # convert cloud to PCL2 msg
         dt = datetime.now()
 

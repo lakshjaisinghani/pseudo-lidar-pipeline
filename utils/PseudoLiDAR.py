@@ -4,10 +4,10 @@ import numpy as np
 
 class PseudoLiDAR:
 
-    def __init__(self, calib_dir):
+    def __init__(self, calib_dir, sparsity):
         
         self.T, self.P = self.get_trans_proj(calib_dir)
-
+        self.sparsity = sparsity
 
     def read_calib_file(self, filepath):
         ''' Read in a calibration file and parse into a dictionary.
@@ -82,6 +82,7 @@ class PseudoLiDAR:
         b_x = self.P[0, 3] / (-f_u)  # relative
         b_y = self.P[1, 3] / (-f_v)
 
+        # image to cam transform
         n = uv_depth.shape[0]
         x = ((uv_depth[:, 0] - c_u) * uv_depth[:, 2]) / f_u + b_x
         y = ((uv_depth[:, 1] - c_v) * uv_depth[:, 2]) / f_v + b_y
@@ -95,10 +96,15 @@ class PseudoLiDAR:
 
         pts_3d_cam = self.cart2hom(pts_3d_cam)  # nx4
 
+        # cam to velodyne transform
         cloud = np.matmul(pts_3d_cam, np.transpose(T_inv))
 
-        max_high = 1 # m
+        max_high = 1 # meters
 
         valid = (cloud[:, 0] >= 0) & (cloud[:, 2] < max_high)
+        cloud  = cloud[valid]
 
-        return cloud[valid]
+        if self.sparsity:
+            return cloud[0::self.sparsity]
+        else:
+            return cloud
